@@ -8,6 +8,11 @@
 
 #include "lcd1202.h"
 
+#define swap(a, b) { int t = a; a = b; b = t; }
+
+/* LCD */
+byte LCD_RAM_BUFF[864];
+extern byte LCD_RAM[864];
 LCD1202 lcd(2, 0, 4, 5);  // RST, CS, MOSI, SCK
 
 int cases;
@@ -16,6 +21,14 @@ int recovered;
 char country[16];
 
 String country_code[10] = {"China", "Italy", "USA", "Spain", "Germany", "Iran", "France", "S.%20Korea", "Switzerland", "UK"};
+
+void connectWifi(char *id, char *pwd);
+void copyBuffer(void);
+void swapBuffer(void);
+void shiftBuffer(void);
+void shiftDisplay(void);
+void drawScreen(void);
+bool coronaUpdate(String code);
 
 
 void connectWifi(char *id, char *pwd) {
@@ -47,10 +60,69 @@ void connectWifi(char *id, char *pwd) {
   Serial.println("\tCONNECTED\n");
 }
 
+void copyBuffer(void) {
+  for(int i = 0; i < 864; i++) {
+    LCD_RAM_BUFF[i] = LCD_RAM[i];
+  }
+}
+
+void swapBuffer(void) {
+  for(int i = 0; i < 864; i++) {
+    swap(LCD_RAM[i], LCD_RAM_BUFF[i]);
+  }
+}
+
+void shiftBuffer(void) {
+  int cnt=0;
+  
+  for(int i = 0; i < 864; i++) {
+    if(i % 96 == 95) {
+      LCD_RAM[i] = LCD_RAM_BUFF[cnt * 96];
+      cnt++;
+    }
+    else  LCD_RAM[i] = LCD_RAM[i + 1];
+  }
+
+  for(int i = 0; i < 864; i++) {
+    if(i % 96 == 95)  LCD_RAM_BUFF[i] = 0;
+    else  LCD_RAM_BUFF[i] = LCD_RAM_BUFF[i + 1];
+  }
+}
+
+void shiftDisplay(void) {
+  copyBuffer();
+  coronaUpdate("all");
+  drawScreen();
+  swapBuffer();
+  
+  for(int i = 0; i < 96/2; i++) {
+    shiftBuffer();
+    shiftBuffer();
+    lcd.Update();
+    delay(1);
+  }
+}
+
+void drawScreen(void) {
+  lcd.Clear_LCD();
+  lcd.drawRect(0, 0, 96, 68, 1);
+  lcd.fillRect(0, 0, 96, 11, 1);
+  lcd.print(48 - (strlen(country) * 3), 2, 0, country);
+  lcd.print(2, 20, 1, "Cases");
+  lcd.print(2, 35, 1, "Deaths");
+  lcd.print(2, 50, 1, "Recovered");
+  lcd.print(59, 20, 1, cases);
+  lcd.print(59, 35, 1, deaths);
+  lcd.print(59, 50, 1, recovered);
+}
+
 bool coronaUpdate(String code) {
   HTTPClient http;
 
-  http.begin("http://coronavirus-19-api.herokuapp.com/countries/" + code);
+  if(code == "all") {
+    http.begin("http://coronavirus-19-api.herokuapp.com/all/");
+  }
+  else  http.begin("http://coronavirus-19-api.herokuapp.com/countries/" + code);
   
   int httpCode = http.GET();  //Send the request
   if (httpCode > 0) {
@@ -65,11 +137,16 @@ bool coronaUpdate(String code) {
       delay(5000);
       return false;
     }
-    
-    strcpy(country, parsed["country"]);
-    Serial.print("Country: ");
-    Serial.println(country);
 
+    if(code == "all") {
+      strcpy(country, "Global Virus");
+    }
+    else {
+      strcpy(country, parsed["country"]);
+      Serial.print("Country: ");
+      Serial.println(country);
+    }
+  
     cases = parsed["cases"];
     Serial.print("Cases: ");
     Serial.println(cases);
