@@ -62,6 +62,7 @@ void LCD1202::SendByte(byte mode, byte c){
   }
 
   digitalWrite(Clock, 0);
+  digitalWrite(CS, 1);
 }
 //=====================================================Обновить дисплей
 void LCD1202::Update(){

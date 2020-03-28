@@ -20,7 +20,7 @@ int deaths;
 int recovered;
 char country[16];
 
-String country_code[10] = {"China", "Italy", "USA", "Spain", "Germany", "Iran", "France", "S.%20Korea", "Switzerland", "UK"};
+String country_code[10] = {"USA", "Italy", "China", "Spain", "Germany", "France", "Iran", "UK", "Switzerland", "S.%20Korea"};
 
 void connectWifi(char *id, char *pwd);
 void copyBuffer(void);
