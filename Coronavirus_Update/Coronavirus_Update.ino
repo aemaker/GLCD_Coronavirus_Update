@@ -10,17 +10,18 @@
 #include "corona.h"
 #include "lcd1202.h"
 
-const char *ssid     = "TP-LINK_ACB8";
-const char *password = "99021399";
+char *ssid     = "TP-LINK_ACB8";
+char *password = "99021399";
 
 
 void setup () {
+  WiFi.disconnect();
   Serial.begin(115200);
   Serial.println("Coronavirus Update");
 
   lcd.Inicialize();   // initialize display
   
-  connectWifi((char*)ssid, (char*)password);
+  connectWifi(ssid, password);
   shiftDisplay();
   delay(5000);
 }

@@ -20,7 +20,7 @@ int deaths;
 int recovered;
 char country[16];
 
-String country_code[10] = {"USA", "Italy", "China", "Spain", "Germany", "France", "Iran", "UK", "Switzerland", "S.%20Korea"};
+String country_code[10] = {"USA", "Spain", "Italy", "Germany", "France", "China", "Iran", "UK", "Turkey", "Switzerland"};
 
 void connectWifi(char *id, char *pwd);
 void copyBuffer(void);
@@ -111,8 +111,8 @@ void drawScreen(void) {
   lcd.print(2, 20, 1, "Cases");
   lcd.print(2, 35, 1, "Deaths");
   lcd.print(2, 50, 1, "Recovered");
-  lcd.print(59, 20, 1, cases);
-  lcd.print(59, 35, 1, deaths);
+  lcd.print(51, 20, 1, cases);
+  lcd.print(51, 35, 1, deaths);
   lcd.print(59, 50, 1, recovered);
 }
 
