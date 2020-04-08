@@ -10,8 +10,8 @@
 #include "corona.h"
 #include "lcd1202.h"
 
-char *ssid     = "TP-LINK_ACB8";
-char *password = "99021399";
+char *ssid     = "AE Maker";
+char *password = "12345678";
 
 
 void setup () {
